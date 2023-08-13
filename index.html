@@ -5,8 +5,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<meta name="author" content="吕强">
-<title>系统工程师实</title>
+<meta name="author" content="程曾欢">
+<title>系统工程师实战</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -748,49 +748,23 @@ p { margin-bottom: 1.25rem; }
 </head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>系统工程师实</h1>
+<h1>系统工程师实战</h1>
 <div class="details">
-<span id="author" class="author">吕强</span><br>
-<span id="email" class="email"><a href="mailto:fifilyu@gmail.com">fifilyu@gmail.com</a></span><br>
+<span id="author" class="author">程曾欢</span><br>
+<span id="email" class="email"><a href="mailto:xiangyouzhuan2018@gmail.com">xiangyouzhuan2018@gmail.com</a></span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">目录</div>
 <ul class="sectlevel1">
-<li><a href="#_前言">前言</a>
+<li><a href="#_Docker_chapter">1. Ceph</a>
 <ul class="sectlevel2">
-<li><a href="#_贡献名单">贡献名单</a></li>
-</ul>
-</li>
-<li><a href="#_Docker_chapter">1. Docker</a>
-<ul class="sectlevel2">
-<li><a href="#_centos7安装配置">1.1. CentOS7安装配置</a>
+<li><a href="#_搭建ceph_cluster">1.1. 搭建Ceph Cluster</a></li>
+<li><a href="#_部署cephfs">1.2. 部署cephFS</a></li>
+<li><a href="#_ceph对象存储网关服务rgw_rados_gateway">1.3. Ceph对象存储网关服务(RGW-RADOS Gateway)</a>
 <ul class="sectlevel3">
-<li><a href="#_准备分区">1.1.1. 准备分区</a></li>
-<li><a href="#_升级内核">1.1.2. 升级内核</a></li>
-<li><a href="#_安装">1.1.3. 安装</a></li>
-<li><a href="#_配置">1.1.4. 配置</a></li>
-<li><a href="#_启动">1.1.5. 启动</a></li>
-<li><a href="#_新建自定义网桥">1.1.6. 新建自定义网桥</a></li>
-</ul>
-</li>
-<li><a href="#_centos8安装配置">1.2. CentOS8安装配置</a>
-<ul class="sectlevel3">
-<li><a href="#_准备分区_2">1.2.1. 准备分区</a></li>
-<li><a href="#_安装_2">1.2.2. 安装</a></li>
-<li><a href="#_配置_2">1.2.3. 配置</a></li>
-<li><a href="#_查看docker运行信息">1.2.4. 查看Docker运行信息</a></li>
-<li><a href="#_测试">1.2.5. 测试</a></li>
-</ul>
-</li>
-<li><a href="#_拉取镜像慢的问题">1.3. 拉取镜像慢的问题</a></li>
-<li><a href="#_pure_ftpd_in_docker">1.4. Pure-FTPd in Docker</a>
-<ul class="sectlevel3">
-<li><a href="#_重新打包">1.4.1. 重新打包</a></li>
-</ul>
-</li>
-<li><a href="#_容器启动命令">1.5. 容器启动命令</a>
-<ul class="sectlevel3">
-<li><a href="#_程序启动命令汇总">1.5.1. 程序启动命令汇总</a></li>
+<li><a href="#_打标签">1.3.1. 打标签</a></li>
+<li><a href="#_使用s3">1.3.2. 使用S3</a></li>
+<li><a href="#_使用swift">1.3.3. 使用swift</a></li>
 </ul>
 </li>
 </ul>
@@ -800,666 +774,338 @@ p { margin-bottom: 1.25rem; }
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_前言">前言</h2>
+<h2 id="_Docker_chapter">1. Ceph</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>一本关于个人成长、软件开发、系统运维、产品运营、思维、思考的杂记。</p>
+<p><strong>基于 Centos9 stream</strong></p>
 </div>
 <div class="sect2">
-<h3 id="_贡献名单">贡献名单</h3>
+<h3 id="_搭建ceph_cluster">1.1. 搭建Ceph Cluster</h3>
 <div class="paragraph">
-<p><strong>按时间先后</strong></p>
+<p>Ceph Cluster包含三个虚拟机：ceph1 ceph2 ceph3</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>王朋</p>
-</li>
-<li>
-<p>尹磊</p>
-</li>
-</ul>
+<div class="paragraph">
+<p>ceph1 ceph2 ceph3上进行以下操作</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">dnf install -y epel-release
+dnf install -y systemd-timesyncd
+systemctl enable systemd-timesyncd --now</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">rpm -Uvh https://download.ceph.com/rpm-18.1.3/el9/noarch/ceph-release-1-1.el9.noarch.rpm</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">dnf install -y cephadm podman</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">dnf install -y centos-release-ceph-pacific</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>ceph1进行以下操作</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cephadm bootstrap --mon-ip 192.168.122.60</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><a href="https://192.168.122.60:8443/" class="bare">https://192.168.122.60:8443/</a></p>
+</div>
+<div class="paragraph">
+<p>User: admin</p>
+</div>
+<div class="paragraph">
+<p>Password: 65eoa3cblm</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cephadm shell
+cephadm add-repo --release quincy
+dnf install ceph-common</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>如果已经对下载cephadm的路径换了源，可使用</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cephadm install ceph-common</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>安装ceph-common</p>
+</div>
+<div class="paragraph">
+<p>修改下载cephadm的路径</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">vim  /etc/yum.repos.d/ceph.repo</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>参考
+<a href="https://docs.ceph.com/en/latest/install/mirrors/" class="bare">https://docs.ceph.com/en/latest/install/mirrors/</a></p>
+</div>
+<div class="paragraph">
+<p>CN: China: <a href="http://mirrors.ustc.edu.cn/ceph/" class="bare">http://mirrors.ustc.edu.cn/ceph/</a></p>
+</div>
+<div class="paragraph">
+<p>查看ceph版本号和状态</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">ceph -v
+ceph status</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>设置ceph1能无密码登陆ceph1 ceph2 ceph3</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">ceph cephadm get-pub-key &gt; ~/ceph.pub
+ssh-copy-id -f -i ~/ceph.pub root@ceph1
+ssh-copy-id -f -i ~/ceph.pub root@ceph2
+ssh-copy-id -f -i ~/ceph.pub root@ceph3</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>添加ceph1 ceph2 ceph3到cluster</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cephadm shell -- ceph orch host add ceph1 192.168.122.60
+cephadm shell -- ceph orch host add ceph2 192.168.122.61
+cephadm shell -- ceph orch host add ceph3 192.168.122.62</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>给ceph1 ceph2 ceph3打label</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cephadm shell -- ceph orch host label add ceph1 mon
+cephadm shell -- ceph orch host label add ceph2 mon
+cephadm shell -- ceph orch host label add ceph3 mon</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>添加osd</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cephadm shell -- ceph orch daemon add osd ceph1:/dev/vdb
+cephadm shell -- ceph orch daemon add osd ceph2:/dev/vdb
+cephadm shell -- ceph orch daemon add osd ceph3:/dev/vdb</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_部署cephfs">1.2. 部署cephFS</h3>
+<div class="paragraph">
+<p>参照官网链接
+<a href="https://docs.ceph.com/en/latest/cephadm/services/mds/#orchestrator-cli-cephfs" class="bare">https://docs.ceph.com/en/latest/cephadm/services/mds/#orchestrator-cli-cephfs</a>
+在ceph1上执行以下命令</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">ceph fs volume create geek_cephfs  --placement=3
+ceph fs ls
+ceph fs volume info geek_cephfs
+ceph mds stat
+ceph orch apply mds geek_cephfs --placement=3</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>[root@ceph1 ~]#
+
+  cluster:
+    id:     de382350-3221-11ee-bc03-525400b83c9a
+    health: HEALTH_OK
+
+  services:
+    mon: 3 daemons, quorum stream960,stream961,stream962 (age 9m)
+    mgr: stream960.vperxy(active, since 52m), standbys: stream961.ldsnmd
+    mds: 1/1 daemons up, 2 standby
+    osd: 3 osds: 3 up (since 8m), 3 in (since 9m)
+
+  data:
+    volumes: 1/1 healthy
+    pools:   3 pools, 49 pgs
+    objects: 24 objects, 451 KiB
+    usage:   81 MiB used, 90 GiB / 90 GiB avail
+    pgs:     49 active+clean</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>使用cat /etc/ceph/ceph.client.admin.keyring查看key，用于挂载cephFS</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre># [root@stream960 ~]# cat /etc/cat /etc/ceph/ceph.client.admin.keyringceph/ceph.client.admin.keyring
+# [client.admin]
+# 	key = AQCZ4ctks3nnHxAAgGpIFheYkpdCoBERg98x3g==
+# 	caps mds = "allow *"
+# 	caps mgr = "allow *"
+# 	caps mon = "allow *"
+# 	caps osd = "allow *"</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>在任何主机上执行以下命令</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">mkdir -p /mnt/ceph
+mount -t ceph 192.168.122.60:6789,192.168.122.61:6789,192.168.122.62:6789:/ /mnt/ceph -o name=admin,secret=AQCZ4ctks3nnHxAAgGpIFheYkpdCoBERg98x3g==</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_ceph对象存储网关服务rgw_rados_gateway">1.3. Ceph对象存储网关服务(RGW-RADOS Gateway)</h3>
+<div class="paragraph">
+<p>安装ceph-radosgw</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">sudo yum install -y ceph-radosgw</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_打标签">1.3.1. 打标签</h4>
+<div class="paragraph">
+<p>主要作用是根据标签决定rgw运行在那些机器上</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">ceph orch host label add ceph1 rgw
+ceph orch host label add ceph2 rgw
+ceph orch host label add ceph3 rgw</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>启动rgw</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">ceph orch apply rgw test_rgw default --placement=label:rgw --port=8000</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>curl测试连接rgw服务
+查看域信息</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">radosgw-admin zone get --rgw-zone=default
+连接
+[source, bash]
+curl http://ceph1:8000</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>安装s3cmd</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">apt install -y ceph-common s3cmd</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>创建用户
+[Note]注意保存access_key和secret_key值</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">radosgw-admin user create --uid=xy --display-name=administrator --email=xy@xy.com</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_使用s3">1.3.2. 使用S3</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">s3cmd --configure
+# 输入access_key
+KUJSQNRB5QCGGOHMB6I0
+# 输入secret_key
+ai4zduUFCjC83JJ4E6GqaWHFHCmsOp14qptCfZaE
+# 输入域()
+default
+# 输入rgw访问接口
+storage02:8000
+# 连接存储桶域名
+storage02
+# 输入密码，没有加密。回车
+回车
+# 有没有gpg目录，安装s3服务就会有
+回车
+# 是否用https
+No
+# 是否有代理
+回车
+# 测试连通性，返回success代表成功
+y
+# 是否保存
+y</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>创建存储桶测试</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">s3cmd mb s3://bucket1
+查看存储桶
+[source, bash]
+s3cmd ls</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_使用swift">1.3.3. 使用swift</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">yum install python-swiftclient
+创建用户
+[source, bash]
+radosgw-admin user create --uid="testuser" --display-name="First User"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>创建子用户</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">radosgw-admin subuser create --uid=testuser --subuser=testuser:swift --access=full</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>swift常用命令</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">swift -A http://192.168.122.106:8000/auth/1.0 -U czhswift:swift -K AquvhRPHOom3S5dWLjyJYZwOwYKUz11EiSikZqgG post swiftbucket
+swift -A http://192.168.122.106:8000/auth/1.0 -U czhswift:swift -K AquvhRPHOom3S5dWLjyJYZwOwYKUz11EiSikZqgG delete swiftbucket
+swift -A http://192.168.122.106:8000/auth/1.0 -U czhswift:swift -K AquvhRPHOom3S5dWLjyJYZwOwYKUz11EiSikZqgG list
+swift -A http://192.168.122.106:8000/auth/1.0 -U czhswift:swift -K AquvhRPHOom3S5dWLjyJYZwOwYKUz11EiSikZqgG list swiftbucket
+swift -A http://192.168.122.106:8000/auth/1.0 -U czhswift:swift -K AquvhRPHOom3S5dWLjyJYZwOwYKUz11EiSikZqgG stat
+swift -A http://192.168.122.106:8000/auth/1.0 -U czhswift:swift -K AquvhRPHOom3S5dWLjyJYZwOwYKUz11EiSikZqgG upload swiftbucket 1.txt
+swift -A http://192.168.122.106:8000/auth/1.0 -U czhswift:swift -K AquvhRPHOom3S5dWLjyJYZwOwYKUz11EiSikZqgG delete swiftbucket 1.txt</code></pre>
+</div>
 </div>
 <div style="page-break-after: always;"></div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_Docker_chapter">1. Docker</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p><strong>基于 CentOS 7</strong></p>
-</div>
-<div class="sect2">
-<h3 id="_centos7安装配置">1.1. CentOS7安装配置</h3>
-<div class="sect3">
-<h4 id="_准备分区">1.1.1. 准备分区</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># XFS必须启用ftype参数，比如硬盘分区 /dev/sda1
-mkfs.xfs -n ftype=1 -f $硬盘分区
-
-# 挂载硬盘分区，用于存储Docker数据
-echo `ll /dev/disk/by-uuid/|grep $硬盘分区|awk '{print "UUID="$9" /data                   xfs     defaults        0 0"}'` &gt;&gt; /etc/fstab
-
-# 自动挂载所有分区
-mount -a
-
-# 验证挂载
-df -h|grep /data
-
-mkdir -p /data/var/lib/docker</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_升级内核">1.1.2. 升级内核</h4>
-<div class="paragraph">
-<p>由于内核版本太低，Docker 存储方面有限制。需要升级到更版本内核。</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-每次官方更新了内核版本，grub.cfg会被覆盖。需要重新执行以下步骤。
-</td>
-</tr>
-</table>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
-rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
-
-# 稳定版本内核
-yum --enablerepo=elrepo-kernel install kernel-ml
-# 长期支持版本内核
-yum --enablerepo=elrepo-kernel install kernel-lt
-
-
-# 查找内核启动项
-grep "menuentry 'CentOS Linux" /boot/grub2/grub.cfg|awk -F "'" '{print $2}'
-grep "menuentry 'CentOS Linux" /boot/efi/EFI/centos/grub.cfg|awk -F "'" '{print $2}'
-
-# 设置默认内核版本
-grub2-set-default 'CentOS Linux (4.4.112-1.el7.elrepo.x86_64) 7 (Core)'
-
-cp /boot/grub2/grub.cfg /boot/grub2/grub.cfg.bak
-cp /boot/efi/EFI/centos/grub.cfg /boot/efi/EFI/centos/grub.cfg.bak
-
-grub2-mkconfig -o /boot/grub2/grub.cfg
-grub2-mkconfig -o /boot/efi/EFI/centos/grub.cfg
-
-重启服务器。</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_安装">1.1.3. 安装</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">yum install -y yum-utils \
-  device-mapper-persistent-data \
-  lvm2
-
-yum-config-manager \
-    --add-repo \
-    http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
-
-yum install -y docker-ce
-curl -L https://github.com/docker/compose/releases/download/1.18.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_配置">1.1.4. 配置</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">echo "net.bridge.bridge-nf-call-ip6tables = 1" &gt;&gt; /etc/sysctl.conf
-echo "net.bridge.bridge-nf-call-iptables = 1" &gt;&gt; /etc/sysctl.conf
-echo "net.ipv4.ip_forward = 1" &gt;&gt; /etc/sysctl.conf
-
-sysctl -p
-
-mkdir -p /etc/docker
-cat &lt;&lt; EOF &gt; /etc/docker/daemon.json
-{
-  "registry-mirrors": [
-    "https://registry.docker-cn.com",
-    "https://hub-mirror.c.163.com"
-  ],
-  "data-root": "/var/lib/docker",
-  "storage-driver": "overlay2",
-  "dns" : [
-    "223.5.5.5",
-    "223.6.6.6"
-  ]
-}
-EOF</code></pre>
-</div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-mirrors 位置最后一个优先级高
-</td>
-</tr>
-</table>
-</div>
-<div class="dlist">
-<div class="title">参数说明</div>
-<dl>
-<dt class="hdlist1">registry-mirrors</dt>
-<dd>
-<p>Docker镜像源</p>
-</dd>
-<dt class="hdlist1">graph</dt>
-<dd>
-<p>Docker数据目录</p>
-</dd>
-<dt class="hdlist1">storage-driver</dt>
-<dd>
-<p>Docker 数据文件存储路径</p>
-</dd>
-<dt class="hdlist1">dns</dt>
-<dd>
-<p>容器默认DNS。如果不设置可能出现 <code>git pull</code> 缓慢</p>
-</dd>
-</dl>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_启动">1.1.5. 启动</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">systemctl enable docker
-systemctl start docker
-
-docker info</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_新建自定义网桥">1.1.6. 新建自定义网桥</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker network create --subnet=10.10.10.0/16 --gateway=10.10.10.1 fifilyu
-docker network inspect fifilyu</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_centos8安装配置">1.2. CentOS8安装配置</h3>
-<div class="sect3">
-<h4 id="_准备分区_2">1.2.1. 准备分区</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># XFS必须启用ftype参数，比如硬盘分区 /dev/sda1
-mkfs.xfs -n ftype=1 -f $硬盘分区
-
-# 挂载硬盘分区，用于存储Docker数据
-echo `ll /dev/disk/by-uuid/|grep $硬盘分区|awk '{print "UUID="$9" /data                   xfs     defaults        0 0"}'` &gt;&gt; /etc/fstab
-
-# 自动挂载所有分区
-mount -a
-
-# 验证挂载
-df -h|grep /data
-
-mkdir -p /data/var/lib/docker</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_安装_2">1.2.2. 安装</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">dnf install -y yum-utils
-
-yum-config-manager \
-    --add-repo \
-    https://download.docker.com/linux/centos/docker-ce.repo
-
-dnf install -y docker-ce docker-ce-cli containerd.io
-
-systemctl enable docker</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_配置_2">1.2.3. 配置</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">echo "net.bridge.bridge-nf-call-ip6tables = 1" &gt;&gt; /etc/sysctl.conf
-echo "net.bridge.bridge-nf-call-iptables = 1" &gt;&gt; /etc/sysctl.conf
-echo "net.ipv4.ip_forward = 1" &gt;&gt; /etc/sysctl.conf
-
-sysctl -p
-
-mkdir -p /etc/docker
-cat &lt;&lt; EOF &gt; /etc/docker/daemon.json
-{
-  "registry-mirrors": [
-    "https://registry.docker-cn.com",
-    "https://dockerhub.azk8s.cn",
-    "https://hub-mirror.c.163.com"
-  ],
-  "data-root": "/var/lib/docker",
-  "storage-driver": "overlay2",
-  "dns" : [
-    "223.5.5.5",
-    "223.6.6.6"
-  ]
-}
-EOF</code></pre>
-</div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-mirrors 位置最后一个优先级高
-</td>
-</tr>
-</table>
-</div>
-<div class="dlist">
-<div class="title">参数说明</div>
-<dl>
-<dt class="hdlist1">registry-mirrors</dt>
-<dd>
-<p>Docker镜像源</p>
-</dd>
-<dt class="hdlist1">graph</dt>
-<dd>
-<p>Docker数据目录</p>
-</dd>
-<dt class="hdlist1">storage-driver</dt>
-<dd>
-<p>Docker 数据文件存储路径</p>
-</dd>
-<dt class="hdlist1">dns</dt>
-<dd>
-<p>容器默认DNS。如果不设置可能出现 <code>git pull</code> 缓慢</p>
-</dd>
-</dl>
-</div>
-<div class="paragraph">
-<p>最后，启动或重启docker服务：</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">systemctl restart docker</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_查看docker运行信息">1.2.4. 查看Docker运行信息</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">[root@dell7 ~]# docker info
-Client:
- Debug Mode: false
-
-Server:
- Containers: 0
-  Running: 0
-  Paused: 0
-  Stopped: 0
- Images: 1
- Server Version: 19.03.13
- Storage Driver: overlay2
-  Backing Filesystem: xfs
-  Supports d_type: true
-  Native Overlay Diff: true
- Logging Driver: json-file
- Cgroup Driver: cgroupfs
- Plugins:
-  Volume: local
-  Network: bridge host ipvlan macvlan null overlay
-  Log: awslogs fluentd gcplogs gelf journald json-file local logentries splunk syslog
- Swarm: inactive
- Runtimes: runc
- Default Runtime: runc
- Init Binary: docker-init
- containerd version: 8fba4e9a7d01810a393d5d25a3621dc101981175
- runc version: dc9208a3303feef5b3839f4323d9beb36df0a9dd
- init version: fec3683
- Security Options:
-  seccomp
-   Profile: default
- Kernel Version: 4.18.0-147.8.1.el8_1.x86_64
- Operating System: CentOS Linux 8 (Core)
- OSType: linux
- Architecture: x86_64
- CPUs: 4
- Total Memory: 15.46GiB
- Name: dell7
- ID: WFX3:WXWH:WPML:VRCA:QRTN:LGCB:6UBM:V73O:QEGU:KADY:V3FH:E4Q6
- Docker Root Dir: /var/lib/docker
- Debug Mode: false
- Registry: https://index.docker.io/v1/
- Labels:
- Experimental: false
- Insecure Registries:
-  127.0.0.0/8
- Registry Mirrors:
-  https://hub-mirror.c.163.com/
- Live Restore Enabled: false</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_测试">1.2.5. 测试</h4>
-<div class="paragraph">
-<p>拉取测试镜像：</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker pull hello-world</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">控制台输出</div>
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">[root@dell7 ~]# docker pull hello-world
-Using default tag: latest
-latest: Pulling from library/hello-world
-0e03bdcc26d7: Already exists
-Digest: sha256:e7c70bb24b462baa86c102610182e3efcb12a04854e8c582838d92970a09f323
-Status: Downloaded newer image for hello-world:latest
-docker.io/library/hello-world:latest</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>创建测试容器：</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker run --name hello hello-world</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">控制台输出</div>
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">[root@dell7 ~]# docker run --name hello hello-world
-
-Hello from Docker!
-This message shows that your installation appears to be working correctly.
-
-......</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>查看已经创建的容器：</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker ps -a</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">控制台输出</div>
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">[root@dell7 ~]# docker ps -a
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                      PORTS               NAMES
-59cc42b09fce        hello-world         "/hello"            24 seconds ago      Exited (0) 22 seconds ago                       hello</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>删除测试容器：</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker rm hello</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_拉取镜像慢的问题">1.3. 拉取镜像慢的问题</h3>
-<div class="paragraph">
-<p>很多时候就算更换了源之后，<code>docker pull</code> 还是很慢时，用拷贝的方法更快。</p>
-</div>
-<div class="paragraph">
-<p>在有镜像的系统上导出镜像：</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker save -o docker-centos6-php52.tar fifilyu/docker-centos6-php52</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>用 <code>scp</code> 或 <code>rsync</code> 把 <code>docker-centos6-php52.tar</code> 上传到目标系统，然后导入：</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker load -i docker-centos6-php52.tar</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_pure_ftpd_in_docker">1.4. Pure-FTPd in Docker</h3>
-<div class="paragraph">
-<p>必须使用 <code>--without-capabilities</code> 参数重新编译 Pure-FTPd，否则会出现以下错误：</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>[root@690bec85ee11 /]# /usr/sbin/pure-ftpd
-421 Unable to switch capabilities : Operation not permitted</pre>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_重新打包">1.4.1. 重新打包</h4>
-<div class="sect4">
-<h5 id="_准备打包环境">准备打包环境</h5>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cd ~
-yum install yum-utils rpm-build gcc
-yumdownloader --source pure-ftpd
-rpm -ivh pure-ftpd-1.0.42-3.el7.src.rpm
-yum-builddep pure-ftpd</code></pre>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_修改包文件">修改包文件</h5>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">sed -i 's/--with-capabilities /--without-capabilities /g' rpmbuild/SPECS/pure-ftpd.spec</code></pre>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_准备源代码">准备源代码</h5>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">rpmbuild -bp rpmbuild/SPECS/pure-ftpd.spec</code></pre>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_重新打包_2">重新打包</h5>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">rpmbuild -ba rpmbuild/SPECS/pure-ftpd.spec</code></pre>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_安装测试">安装测试</h5>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">rpm -ivh ~/rpmbuild/RPMS/x86_64/pure-ftpd-1.0.42-3.el7.centos.x86_64.rpm
-/usr/sbin/pure-config.pl /etc/pure-ftpd/pure-ftpd.conf --daemonize
-
-ps aux|grep ftp</code></pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_容器启动命令">1.5. 容器启动命令</h3>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker run -d --restart=always --name test  centos:7 docker-entrypoint.sh</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><code>docker-entrypoint.sh</code> 表示容器中的 <code>/usr/local/bin/docker-entrypoint.sh</code> ，通常内容为：</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">#!/bin/sh
-/usr/bin/rm -f /run/nginx.pid &amp;&amp; /usr/sbin/nginx -t &amp;&amp; /usr/sbin/nginx
-
-# 始终放到最后，防止以上命令启动失败，导致容器无法启动。
-# 容器启动失败的处理流程较复杂，用此代码保证能进入容器处理故障。
-while true
-do
-    sleep 100
-done</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">单行版本</div>
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker run \
-	-d \
-	--restart always \
-	--env LANG=en_US.UTF-8 \
-	--env TZ=Asia/Shanghai \
-	--name lift360_all_data \
-    --mount type=bind,source=/etc/localtime,target=/etc/localtime,readonly \
-	--mount source=lift360_all_data,target=/data \
-	centos:6 \
-	bash -c 'while true; do sleep 100; done;'</code></pre>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_程序启动命令汇总">1.5.1. 程序启动命令汇总</h4>
-<div class="sect4">
-<h5 id="_psql">PSQL</h5>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker pull centos/postgresql-94-centos7
-
-docker run \
-    -d \
-    --restart always \
-    --env LANG=en_US.UTF-8 \
-    --env TZ=Asia/Shanghai \
-    --mount type=bind,source=/etc/localtime,target=/etc/localtime,readonly \
-    -p 18080:8080 \
-    --name xxl_job_tomcat \
-    xxl_job_tomcat \
-    docker-entrypoint.sh
-
-#免密码登录
-echo '127.0.0.1:15432:esafesys_com:postgres:GcMuEKzRtvNIAiX1' &gt; ~/.pgpass
-chmod 600 ~/.pgpass
-
-psql -h 127.0.0.1 -p 15432 -U postgres -c "create database esafesys_com;"
-
-#导入数据库
-psql -h 127.0.0.1 -p 15432 -U postgres esafesys_com -f foo.sql</code></pre>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_mysql5_1">MySQL5.1</h5>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">/usr/bin/mysqld_safe</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>或者</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">/usr/libexec/mysqld \
-    --basedir=/usr \
-    --datadir=/var/lib/mysql \
-    --user=mysql \
-    --log-error=/var/log/mysqld.log \
-    --pid-file=/var/run/mysqld/mysqld.pid \
-    --socket=/var/lib/mysql/mysql.sock</code></pre>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_mysql5_6">MySQL5.6+</h5>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">/usr/sbin/mysqld \
-    --basedir=/usr \
-    --datadir=/var/lib/mysql \
-    --plugin-dir=/usr/lib64/mysql/plugin \
-    --user=mysql --log-error=/var/log/mysqld.log \
-    --pid-file=/var/run/mysqld/mysqld.pid \
-    --socket=/var/lib/mysql/mysql.sock</code></pre>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_tomcat">Tomcat</h5>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">su tomcat --shell /usr/libexec/tomcat/server start</code></pre>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_zookeeper">zookeeper</h5>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">su - zookeeper -c '/usr/local/zookeeper/bin/zkServer.sh start-foreground'</code></pre>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_nginx">Nginx</h5>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">/usr/bin/rm -f /run/nginx.pid &amp;&amp; /usr/sbin/nginx -t &amp;&amp; /usr/sbin/nginx</code></pre>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_pure_ftpd">Pure-FTPd</h5>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">/usr/sbin/pure-config.pl /etc/pure-ftpd/pure-ftpd.conf --daemonize</code></pre>
-</div>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-要在 Docker 中使用 Pure-FTPd，请查看  <a href="#_pure_ftpd_in_docker">Pure-FTPd in Docker</a>
-</td>
-</tr>
-</table>
-</div>
-<div style="page-break-after: always;"></div>
-</div>
 </div>
 </div>
 </div>
@@ -1467,7 +1113,7 @@ psql -h 127.0.0.1 -p 15432 -U postgres esafesys_com -f foo.sql</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-08-13 14:25:23 +0800
+Last updated 2023-08-13 16:49:13 +0800
 </div>
 </div>
 <script src="js/highlight.min.js"></script>
