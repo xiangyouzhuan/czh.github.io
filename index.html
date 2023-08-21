@@ -807,6 +807,32 @@ p { margin-bottom: 1.25rem; }
 <li><a href="#_为gitlab新增防火墙规则">3.4. 为GitLab新增防火墙规则</a></li>
 </ul>
 </li>
+<li><a href="#_jenkins">4. Jenkins</a>
+<ul class="sectlevel2">
+<li><a href="#_新增jenkins_yum仓库">4.1. 新增Jenkins Yum仓库</a>
+<ul class="sectlevel3">
+<li><a href="#_下载仓库文件">4.1.1. 下载仓库文件</a></li>
+<li><a href="#_导入仓库密钥">4.1.2. 导入仓库密钥</a></li>
+<li><a href="#_默认禁用jenkins仓库">4.1.3. 默认禁用Jenkins仓库</a></li>
+</ul>
+</li>
+<li><a href="#_安装jenkins软件包">4.2. 安装Jenkins软件包</a>
+<ul class="sectlevel3">
+<li><a href="#_安装依赖">4.2.1. 安装依赖</a></li>
+<li><a href="#_安装jenkins">4.2.2. 安装Jenkins</a></li>
+</ul>
+</li>
+<li><a href="#_配置jenkins服务">4.3. 配置Jenkins服务</a>
+<ul class="sectlevel3">
+<li><a href="#_开机启动jenkins">4.3.1. 开机启动Jenkins</a></li>
+<li><a href="#_设置jenkins启动参数">4.3.2. 设置Jenkins启动参数</a></li>
+</ul>
+</li>
+<li><a href="#_为jenkins新增防火墙规则">4.4. 为Jenkins新增防火墙规则</a></li>
+<li><a href="#_启动jenkins">4.5. 启动Jenkins</a></li>
+<li><a href="#_第一次访问jenkins_web">4.6. 第一次访问Jenkins Web</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -1659,6 +1685,410 @@ GITLAB运行端口注意和 预设GitLab访问URL 的端口保持一致</p>
 访问 <a href="http://gitlab.sjx.com:8181" class="bare">http://gitlab.sjx.com:8181</a> ，完成第一次登录操作</p>
 </div>
 <div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_jenkins">4. Jenkins</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_新增jenkins_yum仓库">4.1. 新增Jenkins Yum仓库</h3>
+<div class="sect3">
+<h4 id="_下载仓库文件">4.1.1. 下载仓库文件</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">wget \
+  --inet4-only \
+  -O /etc/yum.repos.d/jenkins.repo \
+  https://pkg.jenkins.io/redhat-stable/jenkins.repo</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+wget参数说明
+--inet4-only
+表示仅使用IPv4下载文件。pkg.jenkins.io 使用了IPv6解析域名，可能导致下载失败
+-O
+下载文件保存到指定位置
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_导入仓库密钥">4.1.2. 导入仓库密钥</h4>
+<div class="paragraph">
+<p>下载密钥文件</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">wget \
+  --inet4-only \
+  -O /tmp/jenkins.io.key \
+  https://pkg.jenkins.io/redhat-stable/jenkins.io.key</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>导入密钥</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">rpm --import /tmp/jenkins.io.key</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>删除临时文件</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">rm -f /tmp/jenkins.io.key</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_默认禁用jenkins仓库">4.1.3. 默认禁用Jenkins仓库</h4>
+<div class="paragraph">
+<p>按需单独启用Jenkins仓库</p>
+</div>
+<div class="paragraph">
+<p>Jenkins仓库（服务器位于国外）经常无法访问或者速度慢，影响Yum使用，默认禁用之</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">yum-config-manager --disable jenkins | egrep '(\[jenkins\])|enabled'</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>终端输出</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>[jenkins]
+enabled = 0 或 False</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_安装jenkins软件包">4.2. 安装Jenkins软件包</h3>
+<div class="sect3">
+<h4 id="_安装依赖">4.2.1. 安装依赖</h4>
+<div class="paragraph">
+<p>1.安装Java11</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">yum install -y java-11-openjdk java-11-openjdk-devel java-11-openjdk-headless</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>2.设置系统默认Java</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">alternatives --set java `ls /usr/lib/jvm/java-11-openjdk-*/bin/java`
+alternatives --set javac `ls /usr/lib/jvm/java-11-openjdk-*/bin/javac`
+alternatives --set jre_openjdk `ls -d /usr/lib/jvm/java-11-openjdk-*`
+alternatives --set java_sdk_openjdk `ls -d /usr/lib/jvm/java-11-openjdk-*`</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+同时设置四个选项后，/etc/alternatives/java_sdk 会自动链接到 /usr/lib/jvm/java-11-openjdk-*，最终 JAVA_HOME 才是期望的Java 11
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>查看默认Java版本</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">java -version</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">终端输出</div>
+<div class="content">
+<pre>openjdk version "11.0.6" 2020-01-14 LTS
+OpenJDK Runtime Environment 18.9 (build 11.0.6+10-LTS)
+OpenJDK 64-Bit Server VM 18.9 (build 11.0.6+10-LTS, mixed mode, sharing)</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_安装jenkins">4.2.2. 安装Jenkins</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">yum --disablerepo=\* --enablerepo=jenkins install jenkins</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+单独启用Jenkins仓库（ jenkins ），安装Jenkins
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_配置jenkins服务">4.3. 配置Jenkins服务</h3>
+<div class="sect3">
+<h4 id="_开机启动jenkins">4.3.1. 开机启动Jenkins</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">systemctl enable jenkins</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_设置jenkins启动参数">4.3.2. 设置Jenkins启动参数</h4>
+<div class="paragraph">
+<p>1.创建Systemd配置文件</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">mkdir -p /etc/systemd/system/jenkins.service.d/
+
+cat &lt;&lt; EOF &gt; /etc/systemd/system/jenkins.service.d/override.conf
+[Service]
+Environment="JENKINS_PORT=8282"
+# 默认配置文件中的 %C 实际并未生效，而是出现了错误的 "/var/lib/jenkins/%C/jenkins/"
+Environment="JENKINS_WEBROOT=/var/cache/jenkins/war"
+Environment="JENKINS_LOG=/var/log/jenkins/jenkins.log"
+EOF</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">参数说明</div>
+<p>JENKINS_PORT</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Jenkins运行端口。默认端口是8080，和之前安装的GitLab端口（同为8080）冲突，所以设置为 8282</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>JENKINS_WEBROOT</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Jenkins缓存目录</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>JENKINS_LOG</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Jenkins日志文件</pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+JENKINS_DEBUG_LEVEL 参数无任何效果（官方文档未说明）
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>2.重载Systemd配置</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">systemctl daemon-reload</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_为jenkins新增防火墙规则">4.4. 为Jenkins新增防火墙规则</h3>
+<div class="paragraph">
+<p>1.增加防火墙放行规则</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">JENKINS_PORT=8282
+PERM="--permanent"
+SERV_NAME=jenkins_${JENKINS_PORT}
+SERV="${PERM} --service=${SERV_NAME}"
+
+firewall-cmd ${PERM} --new-service=${SERV_NAME}
+firewall-cmd ${SERV} --set-short="Jenkins ports"
+firewall-cmd ${SERV} --set-description="Jenkins port exceptions"
+firewall-cmd ${SERV} --add-port=${JENKINS_PORT}/tcp
+firewall-cmd ${PERM} --add-service=${SERV_NAME}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">参数说明</div>
+<p>JENKINS_PORT</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Jenkins运行端口注意和 设置Jenkins启动参数 保持一致</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>2.重载防火墙配置</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">firewall-cmd --reload</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>3.查看防火墙规则</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">firewall-cmd --list-all</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">终端输出</div>
+<div class="content">
+<pre>public (active)
+  target: default
+  icmp-block-inversion: no
+  interfaces: enp0s3
+  sources:
+  services: dhcpv6-client http https jenkins_8282 ssh
+  ports:
+  protocols:
+  masquerade: no
+  forward-ports:
+  source-ports:
+  icmp-blocks:
+  rich rules:</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>放行的规则中必须有 jenkins_8282 服务</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_启动jenkins">4.5. 启动Jenkins</h3>
+<div class="paragraph">
+<p>1.启动Jenkins</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">systemctl start jenkins</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>2.查看Jenkins状态</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">systemctl status jenkins</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">终端输出</div>
+<div class="content">
+<pre>● jenkins.service - Jenkins Continuous Integration Server
+   Loaded: loaded (/usr/lib/systemd/system/jenkins.service; enabled; vendor preset: disabled)
+  Drop-In: /etc/systemd/system/jenkins.service.d
+           └─override.conf
+   Active: active (running) since Mon 2023-01-02 16:18:45 CST; 9h ago
+......
+......</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>输出中有 active (running) 表示Jenkins已经启动</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Jenkins Web暂时无法访问，详情见下文
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>3.等待Jenkins启动完成</p>
+</div>
+<div class="paragraph">
+<p>查看日志文件： /var/log/jenkins/jenkins.log，确认Jenkins启动完成</p>
+</div>
+<div class="listingblock">
+<div class="title">日志文件内容</div>
+<div class="content">
+<pre>1	Running from: /usr/share/java/jenkins.war
+2	2023-01-03 14:34:54.190+0000 [id=1]	INFO	winstone.Logger#logInternal: Beginning extraction from war file
+3	2023-01-03 14:34:54.243+0000 [id=1]	WARNING	o.e.j.s.handler.ContextHandler#setContextPath: Empty contextPath
+4	2023-01-03 14:34:54.310+0000 [id=1]	INFO	org.eclipse.jetty.server.Server#doStart: jetty-10.0.12; built: 2022-09-14T01:54:40.076Z; git: 408d0139887e27a57b54ed52e2d92a36731a7e88; jvm 11.0.17+8-LTS
+......
+......
+12	2023-01-03 14:34:56.463+0000 [id=31]	INFO	jenkins.InitReactorRunner$1#onAttained: Started initialization
+13	2023-01-03 14:34:56.740+0000 [id=36]	INFO	jenkins.InitReactorRunner$1#onAttained: Listed all plugins
+14	2023-01-03 14:35:00.167+0000 [id=35]	INFO	jenkins.InitReactorRunner$1#onAttained: Prepared all plugins
+15	2023-01-03 14:35:00.207+0000 [id=32]	INFO	jenkins.InitReactorRunner$1#onAttained: Started all plugins
+16	2023-01-03 14:35:00.227+0000 [id=30]	INFO	jenkins.InitReactorRunner$1#onAttained: Augmented all extensions
+17	2023-01-03 14:35:00.926+0000 [id=35]	INFO	h.p.b.g.GlobalTimeOutConfiguration#load: global timeout not set
+18	2023-01-03 14:35:01.596+0000 [id=32]	INFO	jenkins.InitReactorRunner$1#onAttained: System config loaded
+19	2023-01-03 14:35:01.597+0000 [id=38]	INFO	jenkins.InitReactorRunner$1#onAttained: System config adapted
+20	2023-01-03 14:35:01.626+0000 [id=31]	INFO	jenkins.InitReactorRunner$1#onAttained: Loaded all jobs
+21	2023-01-03 14:35:01.639+0000 [id=32]	INFO	jenkins.InitReactorRunner$1#onAttained: Configuration for all jobs updated
+22	2023-01-03 14:35:01.981+0000 [id=30]	INFO	jenkins.InitReactorRunner$1#onAttained: Completed initialization
+23	2023-01-03 14:35:02.107+0000 [id=23]	INFO	hudson.lifecycle.Lifecycle#onReady: Jenkins is fully up and running</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>注意23行日志</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+未见以下日志消息，必须长时间等待（半小时甚至更久）：
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>Jenkins is fully up and running</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>现在，你可以访问 第一次访问Jenkins Web 继续完成Jenkins安装操作</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_第一次访问jenkins_web">4.6. 第一次访问Jenkins Web</h3>
+<div style="page-break-after: always;"></div>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
@@ -1666,7 +2096,7 @@ GITLAB运行端口注意和 预设GitLab访问URL 的端口保持一致</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-08-17 22:42:08 +0800
+Last updated 2023-08-21 08:47:57 +0800
 </div>
 </div>
 <script src="js/highlight.min.js"></script>
