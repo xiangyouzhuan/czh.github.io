@@ -929,6 +929,7 @@ p { margin-bottom: 1.25rem; }
 <li><a href="#_编译安装">14.1.1. 编译安装</a></li>
 </ul>
 </li>
+<li><a href="#_python版本管理">14.2. Python版本管理</a></li>
 </ul>
 </li>
 <li><a href="#_Terminal_chapter">15. Terminal</a>
@@ -957,25 +958,27 @@ p { margin-bottom: 1.25rem; }
 <ul class="sectlevel2">
 <li><a href="#_quickstart">20.1. quickstart</a>
 <ul class="sectlevel3">
-<li><a href="#_1_下载kafka">20.1.1. 1.下载KAFKA</a></li>
-<li><a href="#_2_启动kafka环境">20.1.2. 2.启动KAFKA环境</a></li>
-<li><a href="#_3_创建一个topic用来存储事件">20.1.3. 3.创建一个topic用来存储事件</a></li>
-<li><a href="#_4_往该topic中写入事件">20.1.4. 4.往该topic中写入事件</a></li>
-<li><a href="#_5_读事件">20.1.5. 5.读事件</a></li>
-<li><a href="#_6_用kafka_connnect将数据导入导出成事件流">20.1.6. 6.用KAFKA CONNNECT将数据导入/导出成事件流</a></li>
-<li><a href="#_常用命令">20.1.7. 常用命令</a></li>
+<li><a href="#_环境准备_2">20.1.1. 环境准备</a></li>
+<li><a href="#_1_下载kafka">20.1.2. 1.下载KAFKA</a></li>
+<li><a href="#_2_启动kafka环境">20.1.3. 2.启动KAFKA环境</a></li>
+<li><a href="#_3_创建一个topic用来存储事件">20.1.4. 3.创建一个topic用来存储事件</a></li>
+<li><a href="#_4_往该topic中写入事件">20.1.5. 4.往该topic中写入事件</a></li>
+<li><a href="#_5_读事件">20.1.6. 5.读事件</a></li>
+<li><a href="#_6_用kafka_connnect将数据导入导出成事件流">20.1.7. 6.用KAFKA CONNNECT将数据导入/导出成事件流</a></li>
+<li><a href="#_常用命令">20.1.8. 常用命令</a></li>
 </ul>
 </li>
 <li><a href="#_kafka_java_demo">20.2. kafka java demo</a></li>
 </ul>
 </li>
-<li><a href="#_GitLab_chapter">21. RabbitMQ</a>
+<li><a href="#_rabbitmq">21. RabbitMQ</a>
 <ul class="sectlevel2">
 <li><a href="#_rabbitmq_quickstart">21.1. RabbitMQ quickstart</a>
 <ul class="sectlevel3">
 <li><a href="#_python测试脚本">21.1.1. python测试脚本</a></li>
 </ul>
 </li>
+<li><a href="#_rabbitmq_配置">21.2. RabbitMQ 配置</a></li>
 </ul>
 </li>
 <li><a href="#_centos_stream_9">22. centos-stream-9</a>
@@ -3856,7 +3859,7 @@ dnf install -y gcc gcc-c++ make libffi-devel bzip2-devel readline-devel ncurses-
 <div class="title">安装Python</div>
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cd  ~/downloads
-wget https://www.python.org/ftp/python/3.11.5/Python-3.11.5.tar.xz
+wget --no-check-certificate https://www.python.org/ftp/python/3.11.5/Python-3.11.5.tar.xz
 tar xf Python-3.11.5.tar.xz
 cd Python-3.11.5
 ./configure --prefix=/usr/local/python-3.11.5 \
@@ -3875,8 +3878,43 @@ gpip install --upgrade -i https://pypi.tuna.tsinghua.edu.cn/simple pip
 gpip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple</code></pre>
 </div>
 </div>
-<div style="page-break-after: always;"></div>
 </div>
+</div>
+<div class="sect2">
+<h3 id="_python版本管理">14.2. Python版本管理</h3>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+该部分提供思路，不可直接使用
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">#查看当前电脑上有多少个版本的python
+[root@192 workspace]# ls /usr/bin/python*
+
+#建立软链接更改使用的python
+[root@192 workspace]# ln -s /usr/bin/python3.9 python
+#或者
+[root@192 workspace]# ln -s /usr/bin/python311 python
+
+更改pip安装库的位置
+[root@192 workspace]# which pip
+/usr/bin/pip
+[root@192 workspace]# realpath  /usr/local/bin/gpip
+/usr/local/python-3.11.5/bin/pip3
+
+#建立软链接更改使用的python
+[root@192 workspace]# ln -s /usr/local/python-3.11.5/bin/pip3 /usr/bin/pip</code></pre>
+</div>
+</div>
+<div style="page-break-after: always;"></div>
 </div>
 </div>
 </div>
@@ -4512,20 +4550,7 @@ options:
 <div class="sect2">
 <h3 id="_quickstart">20.1. quickstart</h3>
 <div class="sect3">
-<h4 id="_1_下载kafka">20.1.1. 1.下载KAFKA</h4>
-<div class="paragraph">
-<p>下载新的KAFKA发行版并解压</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">wget https://dlcdn.apache.org/kafka/3.5.0/kafka_2.13-3.5.0.tgz
-tar xf kafka_2.13-3.5.0.tgz
-cd kafka_2.13-3.5.0</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_2_启动kafka环境">20.1.2. 2.启动KAFKA环境</h4>
+<h4 id="_环境准备_2">20.1.1. 环境准备</h4>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -4539,25 +4564,157 @@ cd kafka_2.13-3.5.0</code></pre>
 </table>
 </div>
 <div class="listingblock">
-<div class="title">启动ZooKeeper服务</div>
+<div class="title">安装java17</div>
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">bin/zookeeper-server-start.sh config/zookeeper.properties</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">[root@dlp ~]# dnf -y install java-17-openjdk java-17-openjdk-devel
+
+[root@dlp ~]# cat &gt; /etc/profile.d/java.sh &lt;&lt;'EOF'
+export JAVA_HOME=$(dirname $(dirname $(readlink $(readlink $(which java)))))
+export PATH=$PATH:$JAVA_HOME/bin
+EOF
+
+[root@dlp ~]# source /etc/profile.d/java.sh
+
+[root@dlp ~]# java --version
+openjdk 17.0.3 2022-04-19 LTS
+OpenJDK Runtime Environment 21.9 (build 17.0.3+7-LTS)
+OpenJDK 64-Bit Server VM 21.9 (build 17.0.3+7-LTS, mixed mode, sharing)
+
+# verify to create test program
+[root@dlp ~]# cat &gt; java_test.java &lt;&lt;'EOF'
+class java_test {
+    public static void main(String[] args) {
+        System.out.println("Hello Java World !");
+    }
+}
+EOF
+
+[root@dlp ~]# javac java_test.java
+[root@dlp ~]# java java_test
+Hello Java World !</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>新开一个终端</p>
+<p>如果您从CentOS官方存储库安装了多个版本的Java，则可以使用 <code>alternatives</code> 来切换它们。</p>
 </div>
 <div class="listingblock">
-<div class="title">启动Kafka broker服务</div>
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">bin/kafka-server-start.sh config/server.properties</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">[root@dlp ~]# alternatives --config java
+
+There are 3 programs which provide 'java'.
+
+  Selection    Command
+-----------------------------------------------
+   1           java-1.8.0-openjdk.x86_64 (/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.332.b09-1.el9.x86_64/jre/bin/java)
+*+ 2           java-11-openjdk.x86_64 (/usr/lib/jvm/java-11-openjdk-11.0.15.0.10-1.el9.x86_64/bin/java)
+   3           java-17-openjdk.x86_64 (/usr/lib/jvm/java-17-openjdk-17.0.3.0.7-1.el9.x86_64/bin/java)
+
+Enter to keep the current selection[+], or type selection number: 3
+
+[root@dlp ~]# alternatives --config javac
+
+There are 3 programs which provide 'javac'.
+
+  Selection    Command
+-----------------------------------------------
+   1           java-1.8.0-openjdk.x86_64 (/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.332.b09-1.el9.x86_64/bin/javac)
+*+ 2           java-11-openjdk.x86_64 (/usr/lib/jvm/java-11-openjdk-11.0.15.0.10-1.el9.x86_64/bin/javac)
+   3           java-17-openjdk.x86_64 (/usr/lib/jvm/java-17-openjdk-17.0.3.0.7-1.el9.x86_64/bin/javac)
+
+Enter to keep the current selection[+], or type selection number: 3
+
+[root@dlp ~]# java --version
+openjdk 17.0.3 2022-04-19 LTS
+OpenJDK Runtime Environment 21.9 (build 17.0.3+7-LTS)
+OpenJDK 64-Bit Server VM 21.9 (build 17.0.3+7-LTS, mixed mode, sharing)
+[root@dlp ~]# javac --version
+javac 17.0.3</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_3_创建一个topic用来存储事件">20.1.3. 3.创建一个topic用来存储事件</h4>
+<h4 id="_1_下载kafka">20.1.2. 1.下载KAFKA</h4>
 <div class="paragraph">
-<p>在写第一个事件之前，必须创建一个topic。打开另一个终端</p>
+<p>下载新的KAFKA发行版并解压</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">wget https://dlcdn.apache.org/kafka/3.5.0/kafka_2.13-3.5.0.tgz
+tar xf kafka_2.13-3.5.0.tgz
+cd kafka_2.13-3.5.0</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_2_启动kafka环境">20.1.3. 2.启动KAFKA环境</h4>
+<div class="paragraph">
+<p>为了使zookeeper和Kafka broker服务管理更方便，将它们添加至系统服务</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cat &lt;&lt;EOF &gt; /etc/systemd/system/zookeeper.service
+[Unit]
+Description=ZooKeeper Server
+After=network.target
+before=kafka.service
+
+[Service]
+User=root
+ExecStart=/root/kafka_2.13-3.5.0/bin/zookeeper-server-start.sh /root/kafka_2.13-3.5.0/config/zookeeper.properties
+WorkingDirectory=/root/kafka_2.13-3.5.0
+
+[Install]
+WantedBy=multi-user.target
+EOF</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cat &lt;&lt;EOF &gt; /etc/systemd/system/kafka.service
+[Unit]
+Description=Kafka Server
+After=network.target zookeeper.service
+
+[Service]
+User=root
+ExecStart=/root/kafka_2.13-3.5.0/bin/kafka-server-start.sh /root/kafka_2.13-3.5.0/config/server.properties
+WorkingDirectory=/root/kafka_2.13-3.5.0
+
+[Install]
+WantedBy=multi-user.target
+EOF</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">启动ZooKeeper服务</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">#设置开机自启动
+systemctl enable zookeeper
+#启动ZooKeeper服务
+systemctl start zookeeper
+#查看ZooKeeper服务
+systemctl status zookeeper</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">启动Kafka broker服务</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">#设置开机自启动
+systemctl enable kafka
+#启动kafka服务
+systemctl start kafka
+#查看kafka服务
+systemctl status kafka</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_3_创建一个topic用来存储事件">20.1.4. 3.创建一个topic用来存储事件</h4>
+<div class="paragraph">
+<p>在写第一个事件之前，必须创建一个topic。</p>
+</div>
+<div class="paragraph">
+<p>打开另一个终端</p>
 </div>
 <div class="listingblock">
 <div class="title">创建一个topic</div>
@@ -4567,7 +4724,7 @@ cd kafka_2.13-3.5.0</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_4_往该topic中写入事件">20.1.4. 4.往该topic中写入事件</h4>
+<h4 id="_4_往该topic中写入事件">20.1.5. 4.往该topic中写入事件</h4>
 <div class="listingblock">
 <div class="title">使用producer</div>
 <div class="content">
@@ -4581,7 +4738,7 @@ This is my second event</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_5_读事件">20.1.5. 5.读事件</h4>
+<h4 id="_5_读事件">20.1.6. 5.读事件</h4>
 <div class="listingblock">
 <div class="title">再开一个终端，执行</div>
 <div class="content">
@@ -4595,7 +4752,7 @@ This is my second event</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_6_用kafka_connnect将数据导入导出成事件流">20.1.6. 6.用KAFKA CONNNECT将数据导入/导出成事件流</h4>
+<h4 id="_6_用kafka_connnect将数据导入导出成事件流">20.1.7. 6.用KAFKA CONNNECT将数据导入/导出成事件流</h4>
 <div class="paragraph">
 <p>Kafka Connect允许你不断地从外部系统摄取数据到Kafka
 在这个快速入门中，我们将看到如何使用简单的连接器来运行Kafka Connect，将数据从文件导入到Kafka topic，并将数据从Kafka topic导出到文件。</p>
@@ -4667,7 +4824,7 @@ bar</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_常用命令">20.1.7. 常用命令</h4>
+<h4 id="_常用命令">20.1.8. 常用命令</h4>
 <div class="listingblock">
 <div class="title">增加kafka topic quickstart-events</div>
 <div class="content">
@@ -4727,7 +4884,7 @@ java -jar xxxxx.jar</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_GitLab_chapter">21. RabbitMQ</h2>
+<h2 id="_rabbitmq">21. RabbitMQ</h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_rabbitmq_quickstart">21.1. RabbitMQ quickstart</h3>
@@ -5019,8 +5176,59 @@ EOF</code></pre>
 [x] Received b'Hello World!'</pre>
 </div>
 </div>
-<div style="page-break-after: always;"></div>
 </div>
+</div>
+<div class="sect2">
+<h3 id="_rabbitmq_配置">21.2. RabbitMQ 配置</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">官方文档</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://www.rabbitmq.com/install-rpm.html#cloudsmith" class="bare">https://www.rabbitmq.com/install-rpm.html#cloudsmith</a></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+<div class="listingblock">
+<div class="title">配置RabbitMQ</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">#添加用户并设置密码
+rabbitmqctl add_user 'username' '2a55f70a841f18b97c3a7db939b7adc9e34a0f1b'
+
+#列出所有的用户
+rabbitmqctl list_users
+
+#添加虚拟主机qa1
+rabbitmqctl add_vhost qa1
+
+#向用户授权
+#第一个 .* 表示对于每个实体，都授予配置权限。
+#第二个 .* 表示对于每个实体，都授予写入权限。
+#第三个 .* 表示对于每个实体，都授予读取权限。
+rabbitmqctl set_permissions -p "custom-vhost" "username" ".*" ".*" ".*"
+
+#设置系统最大文件句柄
+echo "*               soft   nofile            65535" &gt;&gt; /etc/security/limits.conf
+echo "*               hard   nofile            65535" &gt;&gt; /etc/security/limits.conf
+reboot生效
+#查看文件句柄最大值
+ulimit -n
+
+#设置RabbitMQ最大文件句柄
+sed -i "s|# LimitNOFILE=65536|LimitNOFILE=65536|" /usr/lib/systemd/system/rabbitmq-server.service
+sed -i "s|LimitNOFILE=32768|#LimitNOFILE=32768|" /usr/lib/systemd/system/rabbitmq-server.service
+
+#重启服务
+systemctl daemon-reload
+systemctl restart rabbitmq-server</code></pre>
+</div>
+</div>
+<div style="page-break-after: always;"></div>
 </div>
 </div>
 </div>
