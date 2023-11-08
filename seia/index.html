@@ -756,28 +756,14 @@ p { margin-bottom: 1.25rem; }
 <div id="toc" class="toc2">
 <div id="toctitle">目录</div>
 <ul class="sectlevel1">
-<li><a href="#_Docker_chapter">1. Ceph</a>
+<li><a href="#_yay">1. yay</a>
 <ul class="sectlevel2">
-<li><a href="#_搭建ceph_cluster">1.1. 搭建Ceph Cluster</a></li>
-<li><a href="#_部署cephfs">1.2. 部署CephFS</a></li>
-<li><a href="#_部署cephrwg">1.3. 部署CephRWG</a>
-<ul class="sectlevel3">
-<li><a href="#_打标签">1.3.1. 打标签</a></li>
-<li><a href="#_使用s3">1.3.2. 使用S3</a></li>
-<li><a href="#_使用swift">1.3.3. 使用swift</a></li>
+<li><a href="#_yay常用命令">1.1. yay常用命令</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li><a href="#_git">2. Git</a>
+<li><a href="#_yay_2">2. yay</a>
 <ul class="sectlevel2">
-<li><a href="#_在服务器上搭建git">2.1. 在服务器上搭建Git</a>
-<ul class="sectlevel3">
-<li><a href="#_从已有仓库克隆">2.1.1. 从已有仓库克隆</a></li>
-<li><a href="#_创建dir初始化为空仓库">2.1.2. 创建dir,初始化为空仓库</a></li>
-<li><a href="#_用户clonepush">2.1.3. 用户clone/push</a></li>
-</ul>
-</li>
+<li><a href="#_设置系统默认java">2.1. 设置系统默认java</a></li>
 </ul>
 </li>
 </ul>
@@ -785,35 +771,14 @@ p { margin-bottom: 1.25rem; }
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_Docker_chapter">1. Ceph</h2>
+<h2 id="_yay">1. yay</h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p><strong>基于 Centos-stream-9</strong></p>
-</div>
 <div class="sect2">
-<h3 id="_搭建ceph_cluster">1.1. 搭建Ceph Cluster</h3>
-<div class="paragraph">
-<p>Ceph Cluster包含三个虚拟机：ceph1 ceph2 ceph3</p>
-</div>
-<div class="paragraph">
-<p>ceph1 ceph2 ceph3上进行以下操作</p>
-</div>
+<h3 id="_yay常用命令">1.1. yay常用命令</h3>
 <div class="listingblock">
+<div class="title">从linux官方仓库同步和更新软件包</div>
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">dnf install -y epel-release
-dnf install -y systemd-timesyncd
-systemctl enable systemd-timesyncd --now
-rpm -Uvh https://download.ceph.com/rpm-18.1.3/el9/noarch/ceph-release-1-1.el9.noarch.rpm
-dnf install -y cephadm podman
-dnf install -y centos-release-ceph-pacific</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>ceph1进行以下操作</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cephadm bootstrap --mon-ip 192.168.122.60</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">yay</code></pre>
 </div>
 </div>
 <div class="admonitionblock note">
@@ -823,390 +788,63 @@ dnf install -y centos-release-ceph-pacific</code></pre>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-终端输出如下内容,注意保存Password
+ <code>yay</code> 并不更新AUR
 </td>
 </tr>
 </table>
 </div>
 <div class="listingblock">
+<div class="title">如果只更新AUR软件包</div>
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">https://192.168.122.60:8443/
-User: admin
-Password: 65eoa3cblm</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>然后继续执行如下命令</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cephadm shell
-cephadm add-repo --release quincy
-dnf install ceph-common</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>如果已经对下载cephadm的路径换了源，可使用</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cephadm install ceph-common</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>安装ceph-common</p>
-</div>
-<div class="paragraph">
-<p>修改下载cephadm的路径</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">vim  /etc/yum.repos.d/ceph.repo</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>参考
-<a href="https://docs.ceph.com/en/latest/install/mirrors/" class="bare">https://docs.ceph.com/en/latest/install/mirrors/</a></p>
-</div>
-<div class="paragraph">
-<p>CN: China: <a href="http://mirrors.ustc.edu.cn/ceph/" class="bare">http://mirrors.ustc.edu.cn/ceph/</a></p>
-</div>
-<div class="paragraph">
-<p>查看ceph版本号和状态</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">ceph -v
-ceph status</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>设置ceph1能无密码登陆ceph1 ceph2 ceph3</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">ceph cephadm get-pub-key &gt; ~/ceph.pub
-ssh-copy-id -f -i ~/ceph.pub root@ceph1
-ssh-copy-id -f -i ~/ceph.pub root@ceph2
-ssh-copy-id -f -i ~/ceph.pub root@ceph3</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>添加ceph1 ceph2 ceph3到cluster</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cephadm shell -- ceph orch host add ceph1 192.168.122.60
-cephadm shell -- ceph orch host add ceph2 192.168.122.61
-cephadm shell -- ceph orch host add ceph3 192.168.122.62</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>给ceph1 ceph2 ceph3打label</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cephadm shell -- ceph orch host label add ceph1 mon
-cephadm shell -- ceph orch host label add ceph2 mon
-cephadm shell -- ceph orch host label add ceph3 mon</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>添加osd</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cephadm shell -- ceph orch daemon add osd ceph1:/dev/vdb
-cephadm shell -- ceph orch daemon add osd ceph2:/dev/vdb
-cephadm shell -- ceph orch daemon add osd ceph3:/dev/vdb</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_部署cephfs">1.2. 部署CephFS</h3>
-<div class="paragraph">
-<p>参照官网链接
-<a href="https://docs.ceph.com/en/latest/cephadm/services/mds/#orchestrator-cli-cephfs" class="bare">https://docs.ceph.com/en/latest/cephadm/services/mds/#orchestrator-cli-cephfs</a>
-在ceph1上执行以下命令</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">ceph fs volume create geek_cephfs  --placement=3
-ceph fs ls
-ceph fs volume info geek_cephfs
-ceph mds stat
-ceph orch apply mds geek_cephfs --placement=3</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">yay -Sua</code></pre>
 </div>
 </div>
 <div class="listingblock">
+<div class="title">卸载软件</div>
 <div class="content">
-<pre>[root@ceph1 ~]#
-
-  cluster:
-    id:     de382350-3221-11ee-bc03-525400b83c9a
-    health: HEALTH_OK
-
-  services:
-    mon: 3 daemons, quorum stream960,stream961,stream962 (age 9m)
-    mgr: stream960.vperxy(active, since 52m), standbys: stream961.ldsnmd
-    mds: 1/1 daemons up, 2 standby
-    osd: 3 osds: 3 up (since 8m), 3 in (since 9m)
-
-  data:
-    volumes: 1/1 healthy
-    pools:   3 pools, 49 pgs
-    objects: 24 objects, 451 KiB
-    usage:   81 MiB used, 90 GiB / 90 GiB avail
-    pgs:     49 active+clean</pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">yay -R packagename</code></pre>
 </div>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-使用cat /etc/ceph/ceph.client.admin.keyring查看key，用于挂载cephFS
-</td>
-</tr>
-</table>
 </div>
 <div class="listingblock">
+<div class="title">例如：卸载google-chrome</div>
 <div class="content">
-<pre># [root@stream960 ~]# cat /etc/cat /etc/ceph/ceph.client.admin.keyringceph/ceph.client.admin.keyring
-# [client.admin]
-# 	key = AQCZ4ctks3nnHxAAgGpIFheYkpdCoBERg98x3g==
-# 	caps mds = "allow *"
-# 	caps mgr = "allow *"
-# 	caps mon = "allow *"
-# 	caps osd = "allow *"</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>在任何主机上执行以下命令</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">mkdir -p /mnt/ceph
-mount -t ceph 192.168.122.60:6789,192.168.122.61:6789,192.168.122.62:6789:/ /mnt/ceph -o name=admin,secret=AQCZ4ctks3nnHxAAgGpIFheYkpdCoBERg98x3g==</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_部署cephrwg">1.3. 部署CephRWG</h3>
-<div class="paragraph">
-<p>安装ceph-radosgw</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">sudo yum install -y ceph-radosgw</code></pre>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_打标签">1.3.1. 打标签</h4>
-<div class="paragraph">
-<p>主要作用是根据标签决定rgw运行在那些机器上</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">ceph orch host label add ceph1 rgw
-ceph orch host label add ceph2 rgw
-ceph orch host label add ceph3 rgw</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>启动rgw</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">ceph orch apply rgw test_rgw default --placement=label:rgw --port=8000</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>curl测试连接rgw服务
-查看域信息</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">radosgw-admin zone get --rgw-zone=default
-连接
-[source, bash]
-curl http://ceph1:8000</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>安装s3cmd</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">apt install -y ceph-common s3cmd</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>创建用户
-[Note]注意保存access_key和secret_key值</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">radosgw-admin user create --uid=xy --display-name=administrator --email=xy@xy.com</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_使用s3">1.3.2. 使用S3</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">s3cmd --configure
-# 输入access_key
-KUJSQNRB5QCGGOHMB6I0
-# 输入secret_key
-ai4zduUFCjC83JJ4E6GqaWHFHCmsOp14qptCfZaE
-# 输入域()
-default
-# 输入rgw访问接口
-storage02:8000
-# 连接存储桶域名
-storage02
-# 输入密码，没有加密。回车
-回车
-# 有没有gpg目录，安装s3服务就会有
-回车
-# 是否用https
-No
-# 是否有代理
-回车
-# 测试连通性，返回success代表成功
-y
-# 是否保存
-y</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>创建存储桶测试</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">s3cmd mb s3://bucket1
-查看存储桶
-[source, bash]
-s3cmd ls</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_使用swift">1.3.3. 使用swift</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">yum install python-swiftclient
-创建用户
-[source, bash]
-radosgw-admin user create --uid="testuser" --display-name="First User"</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>创建子用户</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">radosgw-admin subuser create --uid=testuser --subuser=testuser:swift --access=full</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>swift常用命令</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">swift -A http://192.168.122.106:8000/auth/1.0 -U czhswift:swift -K AquvhRPHOom3S5dWLjyJYZwOwYKUz11EiSikZqgG post swiftbucket
-swift -A http://192.168.122.106:8000/auth/1.0 -U czhswift:swift -K AquvhRPHOom3S5dWLjyJYZwOwYKUz11EiSikZqgG delete swiftbucket
-swift -A http://192.168.122.106:8000/auth/1.0 -U czhswift:swift -K AquvhRPHOom3S5dWLjyJYZwOwYKUz11EiSikZqgG list
-swift -A http://192.168.122.106:8000/auth/1.0 -U czhswift:swift -K AquvhRPHOom3S5dWLjyJYZwOwYKUz11EiSikZqgG list swiftbucket
-swift -A http://192.168.122.106:8000/auth/1.0 -U czhswift:swift -K AquvhRPHOom3S5dWLjyJYZwOwYKUz11EiSikZqgG stat
-swift -A http://192.168.122.106:8000/auth/1.0 -U czhswift:swift -K AquvhRPHOom3S5dWLjyJYZwOwYKUz11EiSikZqgG upload swiftbucket 1.txt
-swift -A http://192.168.122.106:8000/auth/1.0 -U czhswift:swift -K AquvhRPHOom3S5dWLjyJYZwOwYKUz11EiSikZqgG delete swiftbucket 1.txt</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">yay -R google-chrome</code></pre>
 </div>
 </div>
 <div style="page-break-after: always;"></div>
-</div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_git">2. Git</h2>
+<h2 id="_yay_2">2. yay</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_在服务器上搭建git">2.1. 在服务器上搭建Git</h3>
-<div class="paragraph">
-<p>在开始架设 Git 服务器前，需要把现有仓库导出为裸仓库——即一个不包含当前工作目录的仓库。 这通常是很简单的。 为了通过克隆你的仓库来创建一个新的裸仓库，你需要在克隆命令后加上 --bare 选项。 按照惯例，裸仓库的目录名以 .git 结尾，就像这样：
-通常有两种办法：</p>
-</div>
-<div class="paragraph">
-<p>从已有仓库克隆，或者创建dir,初始化为空仓库</p>
-</div>
-<div class="sect3">
-<h4 id="_从已有仓库克隆">2.1.1. 从已有仓库克隆</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ git clone --bare my_project my_project.git
-Cloning into bare repository 'my_project.git'...
-done.</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_创建dir初始化为空仓库">2.1.2. 创建dir,初始化为空仓库</h4>
-<div class="paragraph">
-<p>在某一个路径下，创建一个目录</p>
+<h3 id="_设置系统默认java">2.1. 设置系统默认java</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>参考：https://wiki.archlinux.org/title/java</p>
+</li>
+</ul>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">mkdir my_project.git
-进入该目录
-[source, bash]
-cd my_project.git
-初始化这个目录，使其成为一个空仓库
-[source, bash]
-git init --bare --shared</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_用户clonepush">2.1.3. 用户clone/push</h4>
-<div class="paragraph">
-<p>on John&#8217;s computer</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ cd myproject
-$ git init
-$ git add .
-$ git commit -m 'initial commit'
-$ git remote add origin git@gitserver:/srv/git/project.git
-$ git push origin master</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>此时，其他开发者可以克隆此仓库，并推回各自的改动，步骤很简单：</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ git clone git@gitserver:/srv/git/project.git
-$ cd project
-$ vim README
-$ git commit -am 'fix for the README file'
-$ git push origin master</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">#查看已安装的java环境，并列出其中已经启用的java环境
+archlinux-java status
+
+#设置默认java环境
+archlinux-java set java.xxx</code></pre>
 </div>
 </div>
 <div style="page-break-after: always;"></div>
 <div style="page-break-after: always;"></div>
-</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-11-08 16:16:01 +0800
+Last updated 2023-11-08 16:32:57 +0800
 </div>
 </div>
 <script src="js/highlight.min.js"></script>
