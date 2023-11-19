@@ -761,9 +761,14 @@ p { margin-bottom: 1.25rem; }
 <li><a href="#_yay常用命令">1.1. yay常用命令</a></li>
 </ul>
 </li>
-<li><a href="#_yay_2">2. yay</a>
+<li><a href="#_java">2. java</a>
 <ul class="sectlevel2">
 <li><a href="#_设置系统默认java">2.1. 设置系统默认java</a></li>
+</ul>
+</li>
+<li><a href="#_软件安装">3. 软件安装</a>
+<ul class="sectlevel2">
+<li><a href="#_wps安装">3.1. WPS安装</a></li>
 </ul>
 </li>
 </ul>
@@ -816,7 +821,7 @@ p { margin-bottom: 1.25rem; }
 </div>
 </div>
 <div class="sect1">
-<h2 id="_yay_2">2. yay</h2>
+<h2 id="_java">2. java</h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_设置系统默认java">2.1. 设置系统默认java</h3>
@@ -837,6 +842,44 @@ archlinux-java set java.xxx</code></pre>
 </div>
 </div>
 <div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_软件安装">3. 软件安装</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_wps安装">3.1. WPS安装</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">yay -S wps-office
+
+#安装wps中文包
+yay -S wps-office-mui-zh-cn
+
+#安装字体库
+yay -S wps-office-fonts
+
+#安装wps-office所需的符号字体
+yay -S ttf-wps-fonts</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>如果不能导出PDF</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>在arch wiki中有相关的解决方法：wps 的与pdf文档相关的功能都是由wpspdf完成的，而wpspdf依赖 libtiff5.so.5 。所以安装libtiff5aur包即可解决：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">yay -S libtiff5</code></pre>
+</div>
+</div>
+<div style="page-break-after: always;"></div>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
@@ -844,7 +887,7 @@ archlinux-java set java.xxx</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-11-08 16:32:57 +0800
+Last updated 2023-11-08 17:13:13 +0800
 </div>
 </div>
 <script src="js/highlight.min.js"></script>
