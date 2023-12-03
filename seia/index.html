@@ -769,6 +769,7 @@ p { margin-bottom: 1.25rem; }
 <li><a href="#_软件安装">3. 软件安装</a>
 <ul class="sectlevel2">
 <li><a href="#_wps安装">3.1. WPS安装</a></li>
+<li><a href="#_微信安装">3.2. 微信安装</a></li>
 </ul>
 </li>
 </ul>
@@ -878,6 +879,85 @@ yay -S ttf-wps-fonts</code></pre>
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">yay -S libtiff5</code></pre>
 </div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_微信安装">3.2. 微信安装</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">yay -S deepin-wine6-stable
+yay -S deepin-wine-helper
+wget https://gitcode.net/dnrops/atom_bin/-/raw/master/wechat/deepin-wine-wechat-3.7.6.44-1-x86_64.pkg.tar.zst
+yay -U deepin-wine-wechat-3.7.6.44-1-x86_64.pkg.tar.zst</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>若安装过程报错：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>installing libelf (0.190-1) breaks dependency 'libelf=0.189' required by debuginfod</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>则更新系统</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">pacman -Syu</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>之后再次尝试</p>
+</div>
+<div class="paragraph">
+<p>若依然报错
+编辑/etc/pacman.conf</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">sudo vim /etc/pacman.conf</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>将</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>#[multilib]
+#Include = /etc/pacman.d/mirrorlist</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>改为</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>[multilib]
+Include = /etc/pacman.d/mirrorlist</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>然后再次更新系统</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">pacman -Syu</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>之后再次尝试</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 <div style="page-break-after: always;"></div>
 <div style="page-break-after: always;"></div>
