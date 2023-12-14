@@ -2398,7 +2398,8 @@ EOF</code></pre>
 <div class="listingblock">
 <div class="title">生成密钥对</div>
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">#一路回车直到生成
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">mkdir -p ~/.ssh
+#一路回车直到生成
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ~/.ssh/keyname</code></pre>
 </div>
 </div>
@@ -2431,7 +2432,16 @@ ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ~/.ssh/keyname</code></
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">ssh-agent bash
-ssh-add ~/.ssh/id_rsa</code></pre>
+ssh-add ~/.ssh/keyname
+
+#测试是否成功添加
+ssh -T git@github.com</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">终端输出</div>
+<div class="content">
+<pre>Hi xxxxx! You've successfully authenticated, but GitHub does not provide shell access.</pre>
 </div>
 </div>
 <div style="page-break-after: always;"></div>
