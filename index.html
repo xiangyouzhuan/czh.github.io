@@ -2400,7 +2400,7 @@ EOF</code></pre>
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">mkdir -p ~/.ssh
 #一路回车直到生成
-ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ~/.ssh/keyname</code></pre>
+ssh-keygen -t rsa -b 4096 -C "chengzenghuan@github.com" -f ~/.ssh/keyname</code></pre>
 </div>
 </div>
 <div class="dlist">
@@ -2416,7 +2416,7 @@ ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ~/.ssh/keyname</code></
 <p>-b 4096 指定密钥长度为4096位，</p>
 </li>
 <li>
-<p>-C "<a href="mailto:your_email@example.com">your_email@example.com</a>" 注释该密钥对相关联的电子邮件地址（公钥文件末尾会出现该注释）</p>
+<p>-C "<a href="mailto:chengzenghuan@github.com">chengzenghuan@github.com</a>" 注释该密钥对相关联的电子邮件地址（公钥文件末尾会出现该注释）</p>
 </li>
 <li>
 <p>-f ~/.ssh/keyname 指定密钥文件的名称和路径。</p>
@@ -2431,8 +2431,14 @@ ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ~/.ssh/keyname</code></
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">ssh-agent bash
-ssh-add ~/.ssh/keyname
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cat &lt;&lt;EOF &gt;&gt; ~/.ssh/config
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/keyname
+    IdentitiesOnly yes
+EOF
+
 
 #测试是否成功添加
 ssh -T git@github.com</code></pre>
